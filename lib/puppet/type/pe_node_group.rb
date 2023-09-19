@@ -1,7 +1,7 @@
 require 'puppet_x/node_manager/common'
 require 'puppet/property/boolean'
 
-Puppet::Type.newtype(:node_group) do
+Puppet::Type.newtype(:pe_node_group) do
   desc 'The node_group type creates and manages node groups for the PE Node Manager'
   ensurable
   newparam(:name, namevar: true) do
