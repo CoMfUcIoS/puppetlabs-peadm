@@ -12,7 +12,7 @@
 #                 environments => ["production", "staging", "development"],
 #               }'
 #
-# @param compiler_pool_address 
+# @param compiler_pool_address
 #   The service address used by agents to connect to compilers, or the Puppet
 #   service. Typically this is a load balancer.
 # @param internal_compiler_a_pool_address
@@ -54,7 +54,7 @@ class peadm::setup::node_manager (
 
   # We modify this group's rule such that all PE infrastructure nodes will be
   # members.
-  node_group { 'PE Infrastructure Agent':
+  pe_node_group { 'PE Infrastructure Agent':
     rule => ['or',
       ['~', ['trusted', 'extensions', peadm::oid('peadm_role')], '^puppet/'],
       ['~', ['fact', 'pe_server_version'], '.+']
@@ -72,7 +72,7 @@ class peadm::setup::node_manager (
   # We do not call this node group PE Primary because it is modifying a
   # built-in group, rather than creating a new one. And, as of PE 2021.1, the
   # name is still PE Master.
-  node_group { 'PE Master':
+  pe_node_group { 'PE Master':
     parent    => 'PE Infrastructure',
     data      => $compiler_pool_address_data,
     variables => { 'pe_master' => true },
@@ -80,7 +80,7 @@ class peadm::setup::node_manager (
 
   # This group should pin the primary, and also map to any pe-postgresql nodes
   # which are part of the architecture.
-  node_group { 'PE Database':
+  pe_node_group { 'PE Database':
     rule => ['or',
       ['and', ['=', ['trusted', 'extensions', peadm::oid('peadm_role')], 'puppet/puppetdb-database']],
       ['=', 'name', $primary_host],
@@ -89,7 +89,7 @@ class peadm::setup::node_manager (
 
   # Create data-only groups to store PuppetDB PostgreSQL database configuration
   # information specific to the primary and primary replica nodes.
-  node_group { 'PE Primary A':
+  pe_node_group { 'PE Primary A':
     ensure => present,
     parent => 'PE Infrastructure',
     rule   => ['and',
@@ -108,7 +108,7 @@ class peadm::setup::node_manager (
 
   # Configure the A pool for compilers. There are up to two pools for DR, each
   # having an affinity for one "availability zone" or the other.
-  node_group { 'PE Compiler Group A':
+  pe_node_group { 'PE Compiler Group A':
     ensure  => 'present',
     parent  => 'PE Compiler',
     rule    => ['and',
@@ -140,7 +140,7 @@ class peadm::setup::node_manager (
   # PEAdm roles.
 
   # We need to ensure this group provides the peadm_replica variable.
-  node_group { 'PE HA Replica':
+  pe_node_group { 'PE HA Replica':
     ensure    => 'present',
     parent    => 'PE Infrastructure',
     classes   => {
@@ -149,7 +149,7 @@ class peadm::setup::node_manager (
     variables => { 'peadm_replica' => true },
   }
 
-  node_group { 'PE Primary B':
+  pe_node_group { 'PE Primary B':
     ensure => present,
     parent => 'PE Infrastructure',
     rule   => ['and',
@@ -166,7 +166,7 @@ class peadm::setup::node_manager (
     },
   }
 
-  node_group { 'PE Compiler Group B':
+  pe_node_group { 'PE Compiler Group B':
     ensure  => 'present',
     parent  => 'PE Compiler',
     rule    => ['and',

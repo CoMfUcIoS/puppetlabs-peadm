@@ -7,11 +7,11 @@ class peadm::setup::convert_node_manager {
   # cluster is being converted from peadm 2.x or earlier. Ensure that they are
   # absent, once the new groups are present.
 
-  node_group { 'PE Master A':
+  pe_node_group { 'PE Master A':
     ensure => absent,
   }
 
-  node_group { 'PE Master B':
+  pe_node_group { 'PE Master B':
     ensure => absent,
   }
 }
