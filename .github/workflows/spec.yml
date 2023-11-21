@@ -2,32 +2,14 @@ name: "Spec Tests"
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: "0 0 * * *"
   workflow_dispatch:
-  pull_request:
-    paths:
-      - '.github/workflows/**/*'
-      - 'spec/**/*'
-      - 'lib/**/*'
-      - 'tasks/**/*'
-      - 'functions/**/*'
-      - 'types/**/*'
-      - 'plans/**/*'
-      - 'hiera/**/*'
-      - 'manifests/**/*'
-      - 'templates/**/*'
-      - 'files/**/*'
-      - 'metadata.json'
-      - 'Rakefile'
-      - 'Gemfile'
-      - 'provision.yaml'
-      - '.rspec'
-      - '.rubocop.yml'
-      - '.puppet-lint.rc'
-      - '.fixtures.yml'
+  pull_request_review_comment:
+    types: [created]
 
 jobs:
   setup_matrix:
+    if: contains(github.event.comment.body, 'ci run tests')
     name: "Setup Test Matrix"
     runs-on: ubuntu-20.04
     outputs:
@@ -70,7 +52,7 @@ jobs:
     name: "Spec Tests (Puppet: ${{matrix.puppet_version}}, Ruby Ver: ${{matrix.ruby_version}})"
     needs:
       - setup_matrix
-    if: ${{ needs.setup_matrix.outputs.spec_matrix != '{}' }}
+    if: ${{ needs.setup_matrix.outputs.spec_matrix != '{}' }} && ${{ github.event.pull_request.draft == false }}
 
     runs-on: ubuntu-20.04
     strategy:
@@ -79,7 +61,7 @@ jobs:
 
     env:
       PUPPET_GEM_VERSION: ${{ matrix.puppet_version }}
-      FACTER_GEM_VERSION: 'https://github.com/puppetlabs/facter#main'
+      FACTER_GEM_VERSION: "https://github.com/puppetlabs/facter#main"
 
     steps:
       - run: |
@@ -99,7 +81,6 @@ jobs:
           echo ::group::bundler environment
             bundle env
           echo ::endgroup::
-
 
       - name: Run parallel_spec tests
         run: |
