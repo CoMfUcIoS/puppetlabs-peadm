@@ -2,7 +2,7 @@
   "name": "puppetlabs-peadm",
   "version": "3.16.0",
   "author": "puppetlabs",
-  "summary": "Bolt plans used to deploy an at-scale Puppet Enterprise architecture",
+  "summary": "Bolt plans used to deploy an at-scale Puppet Enterprise architecture11",
   "license": "Apache-2.0",
   "source": "https://github.com/puppetlabs/puppetlabs-peadm",
   "project_page": "https://github.com/puppetlabs/puppetlabs-peadm",
