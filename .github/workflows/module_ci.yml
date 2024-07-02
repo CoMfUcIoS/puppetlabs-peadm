@@ -12,9 +12,8 @@ on:
       flags:
         description: "Additional flags to pass to matrix_from_metadata_v2."
         required: false
-        default: ''
+        default: ""
         type: "string"
-
 
 jobs:
   setup_matrix:
@@ -27,7 +26,6 @@ jobs:
       BUNDLE_WITHOUT: release_prep
 
     steps:
-
       - name: "Checkout"
         uses: "actions/checkout@v4"
         with:
@@ -61,7 +59,7 @@ jobs:
     env:
       BUNDLE_WITHOUT: release_prep
       PUPPET_GEM_VERSION: ${{ matrix.puppet_version }}
-      FACTER_GEM_VERSION: 'https://github.com/puppetlabs/facter#main'  # why is this set?
+      FACTER_GEM_VERSION: "https://github.com/puppetlabs/facter#main" # why is this set?
 
     steps:
       - name: "Checkout"
@@ -85,8 +83,8 @@ jobs:
         run: |
           bundle exec rake syntax lint metadata_lint check:symlinks check:git_ignore check:dot_underscore check:test_file rubocop
           bundle exec dependency-checker metadata.json --override WhatsARanjit/node_manager,0.7.5
-          
 
       - name: "Run tests"
         run: |
           bundle exec rake parallel_spec
+

@@ -5,21 +5,21 @@ on:
   workflow_dispatch:
     inputs:
       image:
-        description: 'GCP image for test cluster'
+        description: "GCP image for test cluster"
         required: true
-        default: 'almalinux-cloud/almalinux-8'
+        default: "almalinux-cloud/almalinux-8"
       architecture:
-        description: 'PE architecture to test'
+        description: "PE architecture to test"
         required: true
-        default: 'standard'
+        default: "standard"
       version:
-        description: 'PE version to install'
+        description: "PE version to install"
         required: true
-        default: '2021.7.8'
+        default: "2021.7.8"
       ssh-debugging:
-        description: 'Boolean; whether or not to pause for ssh debugging'
+        description: "Boolean; whether or not to pause for ssh debugging"
         required: true
-        default: 'false'
+        default: "false"
 
 jobs:
   test-backup-restore:
@@ -28,7 +28,7 @@ jobs:
     env:
       BOLT_GEM: true
       BOLT_DISABLE_ANALYTICS: true
-      LANG: 'en_US.UTF-8'
+      LANG: "en_US.UTF-8"
     strategy:
       fail-fast: false
       matrix:
@@ -40,7 +40,7 @@ jobs:
           - "${{ github.event.inputs.image }}"
 
     steps:
-      - name: 'Start SSH session'
+      - name: "Start SSH session"
         if: ${{ github.event.inputs.ssh-debugging == 'true' }}
         uses: luchihoratiu/debug-via-ssh@main
         with:
@@ -63,7 +63,7 @@ jobs:
             bundle env
           echo ::endgroup::
 
-      - name: 'Provision test cluster'
+      - name: "Provision test cluster"
         timeout-minutes: 15
         run: |
           echo ::group::prepare
@@ -90,7 +90,7 @@ jobs:
             sed -e 's/password: .*/password: "[redacted]"/' < spec/fixtures/litmus_inventory.yaml || true
           echo ::endgroup::
 
-      - name: 'Install PE on test cluster'
+      - name: "Install PE on test cluster"
         timeout-minutes: 120
         run: |
           bundle exec bolt plan run peadm_spec::install_test_cluster \
@@ -99,7 +99,7 @@ jobs:
             architecture=${{ matrix.architecture }} \
             version=${{ matrix.version }}
 
-      - name: 'Wait as long as the file ${HOME}/pause file is present'
+      - name: "Wait as long as the file ${HOME}/pause file is present"
         if: ${{ always() && github.event.inputs.ssh-debugging == 'true' }}
         run: |
           while [ -f "${HOME}/pause" ] ; do
@@ -108,7 +108,7 @@ jobs:
           done 
           echo "${HOME}/pause absent, continuing workflow."
 
-      - name: 'Tear down test cluster'
+      - name: "Tear down test cluster"
         if: ${{ always() }}
         continue-on-error: true
         run: |
