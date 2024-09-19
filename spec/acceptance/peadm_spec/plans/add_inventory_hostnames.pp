@@ -7,7 +7,7 @@ plan peadm_spec::add_inventory_hostnames(
   $fqdn_results = await(
     parallelize($t) |$target| {
       $fqdn = run_command('hostname -f', $target)
-      $target.set_var('certname', $fqdn.first['stdout'].chomp) { 'uri' => $target.uri, 'certname' => $target.vars['certname'] }
+      $target.set_var('certname', $fqdn.first['stdout'].chomp)
     }
   )
 
