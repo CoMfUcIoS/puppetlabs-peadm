@@ -77,6 +77,7 @@ jobs:
           echo ::endgroup::
           echo ::group::certnames
             bundle exec bolt plan run peadm_spec::add_inventory_hostnames \
+            --inventory spec/fixtures/litmus_inventory.yaml \
             --modulepath spec/fixtures/modules \
             --no-host-key-check \
             inventory_file=spec/fixtures/litmus_inventory.yml
