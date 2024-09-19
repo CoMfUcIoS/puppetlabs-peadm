@@ -23,6 +23,7 @@ on:
       - .puppet-lint.rc
       - .fixtures.yml
     branches: [main]
+  push:
   workflow_dispatch:
     inputs:
       ssh-debugging:
