@@ -15,5 +15,4 @@ plan peadm_spec::add_inventory_hostnames(
     $command = "yq eval '(.groups[].targets[] | select(.uri == \"${result.target.uri}\").name) = \"${result.value}\"' -i ${inventory_file}"
     run_command($command, 'localhost')
   }
-  notify { 'Inventory updated': }
 }
