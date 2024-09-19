@@ -80,7 +80,7 @@ jobs:
             --inventory spec/fixtures/litmus_inventory.yaml \
             --modulepath spec/fixtures/modules \
             --no-host-key-check \
-            inventory_file=spec/fixtures/litmus_inventory.yml
+            inventory_file=spec/fixtures/litmus_inventory.yaml
           echo ::endgroup::
           echo ::group::info:request
             cat request.json || true; echo
