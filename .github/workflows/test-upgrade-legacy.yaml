@@ -112,8 +112,8 @@ jobs:
       - name: Convert one compiler to legacy
         timeout-minutes: 120
         run: |
-          primary=$(yq '.groups[].targets[] | select(.vars.role == "primary") | .uri' spec/fixtures/litmus_inventory.yaml)
-          compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .uri' spec/fixtures/litmus_inventory.yaml | head -n 1)
+          primary=$(yq '.groups[].targets[] | select(.vars.role == "primary") | .name' spec/fixtures/litmus_inventory.yaml)
+          compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 1)
           echo ::group::convert_compiler_to_legacy
           bundle exec bolt plan run peadm::convert_compiler_to_legacy \
             --inventoryfile spec/fixtures/litmus_inventory.yaml \
@@ -126,8 +126,8 @@ jobs:
       - name: Check if compiler is converted
         timeout-minutes: 120
         run: |
-          primary=$(yq '.groups[].targets[] | select(.vars.role == "primary") | .uri' spec/fixtures/litmus_inventory.yaml)
-          compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .uri' spec/fixtures/litmus_inventory.yaml | head -n 1)
+          primary=$(yq '.groups[].targets[] | select(.vars.role == "primary") | .name' spec/fixtures/litmus_inventory.yaml)
+          compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 1)
           legacy_compiler=$(yq '.items[0].value.params.legacy_compilers[0]' bolt task run peadm::get_peadm_config -t $primary --no-host-key-check --format json)
           if [ "$compiler" != "$legacy_compiler" ]; then
             echo "Compiler conversion failed"
