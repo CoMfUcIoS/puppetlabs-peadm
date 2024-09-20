@@ -122,7 +122,7 @@ jobs:
             primary_host=$primary \
             legacy_hosts=$compiler \
             --stream
-          ec:qho ::endgroup::
+          echo ::endgroup::
       - name: Check if compiler is converted
         timeout-minutes: 120
         run: |
