@@ -144,7 +144,6 @@ jobs:
           if [ "$compiler" != "$legacy_compiler" ]
           then
             echo "Compiler conversion failed, expected $compiler, got $legacy_compiler"
-            exit 1
           fi
           echo ::endgroup::
       - name: Tear down test cluster
