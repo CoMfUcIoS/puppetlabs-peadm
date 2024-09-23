@@ -134,6 +134,7 @@ jobs:
           compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 1)
           bundle exec bolt task run peadm::get_peadm_config \
             --targets $primary \
+            --inventoryfile spec/fixtures/litmus_inventory.yaml \
             --modulepath spec/fixtures/modules \
             --no-host-key-check \
             --format json > peadm_config.json
