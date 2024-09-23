@@ -133,7 +133,7 @@ jobs:
           primary=$(yq '.groups[].targets[] | select(.vars.role == "primary") | .name' spec/fixtures/litmus_inventory.yaml)
           compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 1)
           bundle exec bolt task run peadm::get_peadm_config \
-            -t $primary \
+            --targets $primary \
             --modulepath spec/fixtures/modules \
             --no-host-key-check \
             --format json > peadm_config.json
@@ -141,8 +141,9 @@ jobs:
           echo ::endgroup::
           echo ::group::smoke_test
           legacy_compiler=$(yq '.items[0].value.params.legacy_compilers[0]' peadm_config.json)
-          if [ "$compiler" != "$legacy_compiler" ]; then
-            echo "Compiler conversion failed"
+          if [ "$compiler" != "$legacy_compiler" ]
+          then
+            echo "Compiler conversion failed, expected $compiler, got $legacy_compiler"
             exit 1
           fi
           echo ::endgroup::
