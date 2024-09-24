@@ -246,6 +246,32 @@ jobs:
             sleep 60
           done 
           echo "${HOME}/pause absent, continuing workflow."
+      - name: Check if compilers are configured
+        timeout-minutes: 120
+        run: |
+          echo ::group::inventory
+            sed -e 's/password: .*/password: "[redacted]"/' < spec/fixtures/litmus_inventory.yaml || true
+          echo ::endgroup::
+          echo ::group::get_peadm_config
+          primary=$(yq '.groups[].targets[] | select(.vars.role == "primary") | .name' spec/fixtures/litmus_inventory.yaml)
+          compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 1)
+          legacy_compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 2)
+          bundle exec bolt task run peadm::get_peadm_config \
+            --targets $primary \
+            --inventoryfile spec/fixtures/litmus_inventory.yaml \
+            --modulepath spec/fixtures/modules \
+            --no-host-key-check \
+            --format json > peadm_config.json
+          cat peadm_config.json
+          echo ::endgroup::
+          echo ::group::smoke_test
+          configured_legacy_compiler=$(yq '.items[0].value.params.legacy_compilers[0]' peadm_config.json)
+          configured_compiler=$(yq '.items[0].value.params.compiler_hosts[0]' peadm_config.json)
+          if [ "$configured_legacy_compiler" != "$legacy_compiler" AND "$configured_compiler" != "$compiler" ]
+            echo "Compilers are not configured, expected $legacy_compiler and $compiler, got $configured_legacy_compiler and $configured_compiler"
+            exit 1
+          fi
+          echo ::endgroup::
       - name: Tear down test cluster
         if: ${{ always() }}
         continue-on-error: true
