@@ -120,8 +120,7 @@ jobs:
             --modulepath spec/fixtures/modules \
             --no-host-key-check \
             primary_host=$primary \
-            legacy_hosts=$compiler \
-            --stream
+            legacy_hosts=$compiler
           echo ::endgroup::
       - name: Check if compiler is converted
         timeout-minutes: 120
@@ -145,6 +144,7 @@ jobs:
           if [ "$compiler" != "$legacy_compiler" ]
           then
             echo "Compiler conversion failed, expected $compiler, got $legacy_compiler"
+            exit 1
           fi
           echo ::endgroup::
       - name: Tear down test cluster
