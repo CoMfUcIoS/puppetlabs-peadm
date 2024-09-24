@@ -159,8 +159,8 @@ jobs:
               cat request.json || true; echo
             echo ::endgroup::
           fi
-  install:
-    name: Install PE with legacy compilers
+  install_upgrade:
+    name: Install and Upgrade PE with legacy compilers
     runs-on: ubuntu-20.04
     env:
       BOLT_GEM: true
@@ -225,7 +225,8 @@ jobs:
           primary=$(yq '.groups[].targets[] | select(.vars.role == "primary") | .name' spec/fixtures/litmus_inventory.yaml)
           compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 1)
           legacy_compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 2)
-          echo -n '{ "primary_host": "'$primary'", "legacy_compilers": ["'$legacy_compiler'"], "compiler_hosts": ["'$compiler'"], "version": "2023.8.0", "console_password": "'${{ secrets.CONSOLE_PASSWORD }}'" }' > params.json
+          replica=$(yq '.groups[].targets[] | select(.vars.role == "replica") | .name' spec/fixtures/litmus_inventory.yaml)
+          echo -n '{ "primary_host": "'$primary'", "replica_host": "'$replica'", "legacy_compilers": ["'$legacy_compiler'"], "compiler_hosts": ["'$compiler'"], "version": "2023.7.0", "console_password": "'${{ secrets.CONSOLE_PASSWORD }}'" }' > params.json
       - name: Install PE with legacy compilers
         timeout-minutes: 120
         run: |
@@ -271,6 +272,24 @@ jobs:
             echo "Compilers are not configured, expected $legacy_compiler and $compiler, got $configured_legacy_compiler and $configured_compiler"
             exit 1
           fi
+          echo ::endgroup::
+      - name: Create the upgrade params.json file
+        run: |
+          primary=$(yq '.groups[].targets[] | select(.vars.role == "primary") | .name' spec/fixtures/litmus_inventory.yaml)
+          compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 1)
+          legacy_compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 2)
+          replica=$(yq '.groups[].targets[] | select(.vars.role == "replica") | .name' spec/fixtures/litmus_inventory.yaml)
+          echo -n '{ "primary_host": "'$primary'", "replica_host": "'$replica'", "compiler_hosts": ["'$compiler'", "'$legacy_compiler'"], "version": "2023.8.0"}' > upgrade_params.json
+      - name: Upgrade PE with legacy compilers
+        run: |
+          echo ::group::upgrade_params.json
+          echo upgrade_params.json
+          echo ::endgroup::
+          echo ::group::upgrade
+          bundle exec bolt plan run peadm::upgrade \
+            --inventoryfile spec/fixtures/litmus_inventory.yaml \
+            --modulepath spec/fixtures/modules \
+            --params @upgrade_params.json
           echo ::endgroup::
       - name: Tear down test cluster
         if: ${{ always() }}
