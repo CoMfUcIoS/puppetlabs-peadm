@@ -236,7 +236,7 @@ jobs:
           bundle exec bolt plan run peadm::install \
             --inventoryfile spec/fixtures/litmus_inventory.yaml \
             --modulepath spec/fixtures/modules \
-            @params.json
+            --params @params.json
           echo ::endgroup::
       - name: Wait as long as the file ${HOME}/pause file is present
         if: ${{ always() && github.event.inputs.ssh-debugging == 'true' }}
