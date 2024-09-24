@@ -225,17 +225,12 @@ jobs:
           primary=$(yq '.groups[].targets[] | select(.vars.role == "primary") | .name' spec/fixtures/litmus_inventory.yaml)
           compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 1)
           legacy_compiler=$(yq '.groups[].targets[] | select(.vars.role == "compiler") | .name' spec/fixtures/litmus_inventory.yaml | head -n 2)
-          jq -n --arg primary_host "$primary" \
-            --argjson legacy_compilers '[$legacy_compiler]' \
-            --argjson compiler_hosts '[$compiler]' \
-            --arg version "2023.8.0" \
-            --arg console_password "${{ secrets.CONSOLE_PASSWORD }}" \
-            '{primary_host: $primary_host, legacy_compilers: $legacy_compilers, compiler_hosts: $compiler_hosts, version: $version, console_password: $console_password}' > params.json
+          echo -n '{ "primary_host": "'$primary'", "legacy_compilers": ["'$legacy_compiler'"], "compiler_hosts": ["'$compiler'"], "version": "2023.8.0", "console_password": "'${{ secrets.CONSOLE_PASSWORD }}'" }' > params.json
       - name: Install PE with legacy compilers
         timeout-minutes: 120
         run: |
           echo ::group::params.json
-            cat params.json
+          sed -e 's/console_password: .*/console_password: "[redacted]"/' < params.json || true
           echo ::endgroup::
           echo ::group::install
           bundle exec bolt plan run peadm::install \
